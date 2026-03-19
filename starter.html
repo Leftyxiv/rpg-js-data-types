@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RPG Battle — JS Data Types</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: "Courier New", Courier, monospace;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e94560;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+    }
+
+    .arena {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .fighter-card {
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      padding: 16px 24px;
+      min-width: 260px;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .fighter-card h2 {
+      color: #e94560;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+    }
+
+    .fighter-card.enemy h2 {
+      color: #a855f7;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #0f3460;
+    }
+
+    .stat-label {
+      color: #888;
+    }
+
+    .stat-value {
+      color: #4ade80;
+    }
+
+    .stat-type {
+      color: #f59e0b;
+      font-size: 0.85em;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-family: inherit;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 6px;
+    }
+
+    button:hover {
+      background: #c73652;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #battle-log {
+      background: #0f0f23;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      padding: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    #battle-log div {
+      padding: 2px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    #battle-log div:last-child {
+      border-bottom: none;
+    }
+
+    .log-damage { color: #e94560; }
+    .log-heal { color: #4ade80; }
+    .log-info { color: #60a5fa; }
+    .log-crit { color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+  <h1>⚔️ RPG Battle — JS Data Types ⚔️</h1>
+
+  <div class="arena">
+    <div class="fighter-card" id="hero-card">
+      <h2 id="hero-name">Aria</h2>
+      <div class="stat"><span class="stat-label">Health</span><span class="stat-value" id="hero-health">"100"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Attack</span><span class="stat-value" id="hero-attack">"15"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Defense</span><span class="stat-value" id="hero-defense">8</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Speed</span><span class="stat-value" id="hero-speed">"12"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Alive</span><span class="stat-value" id="hero-alive">"true"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Level</span><span class="stat-value" id="hero-level">1</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Mana</span><span class="stat-value" id="hero-mana">"50"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Poisoned</span><span class="stat-value" id="hero-poisoned">0</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Crit %</span><span class="stat-value" id="hero-crit">"0.2"</span><span class="stat-type">string</span></div>
+    </div>
+
+    <div class="fighter-card enemy" id="enemy-card">
+      <h2 id="enemy-name">Shadow Rat</h2>
+      <div class="stat"><span class="stat-label">Health</span><span class="stat-value" id="enemy-health">60</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Attack</span><span class="stat-value" id="enemy-attack">10</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Defense</span><span class="stat-value" id="enemy-defense">"3"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Speed</span><span class="stat-value" id="enemy-speed">8</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Alive</span><span class="stat-value" id="enemy-alive">true</span><span class="stat-type">boolean</span></div>
+      <div class="stat"><span class="stat-label">Level</span><span class="stat-value" id="enemy-level">"1"</span><span class="stat-type">string</span></div>
+      <div class="stat"><span class="stat-label">Mana</span><span class="stat-value" id="enemy-mana">20</span><span class="stat-type">number</span></div>
+      <div class="stat"><span class="stat-label">Poisoned</span><span class="stat-value" id="enemy-poisoned">false</span><span class="stat-type">boolean</span></div>
+      <div class="stat"><span class="stat-label">Crit %</span><span class="stat-value" id="enemy-crit">0.1</span><span class="stat-type">number</span></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="testFunctions()">Test Functions</button>
+    <button id="battle-btn" onclick="runBattle(hero, enemy)" disabled>Run Battle</button>
+  </div>
+
+  <div id="battle-log"></div>
+
+  <script>
+    // ============================================================
+    //  FIGHTER DATA — Notice the types! Not everything is what
+    //  it seems. Use typeof to inspect each property.
+    // ============================================================
+
+    const hero = {
+      name: "Aria",
+      health: "100",       // string! should be number
+      maxHealth: 100,       // number (correct)
+      attack: "15",         // string!
+      defense: 8,           // number (correct)
+      speed: "12",          // string!
+      alive: "true",        // string! should be boolean
+      level: 1,             // number (correct)
+      poisoned: 0,          // falsy number — is this false?
+      mana: "50",           // string!
+      critChance: "0.2"     // string!
+    };
+
+    const enemy = {
+      name: "Shadow Rat",
+      health: 60,           // number (correct — contrast with hero)
+      maxHealth: "60",      // string! (opposite of hero)
+      attack: 10,           // number
+      defense: "3",         // string!
+      speed: 8,             // number
+      alive: true,          // boolean (correct — contrast)
+      level: "1",           // string!
+      poisoned: false,      // boolean (correct)
+      mana: 20,             // number
+      critChance: 0.1       // number (correct)
+    };
+
+    // ============================================================
+    //  LOG HELPER — This one is provided for you! It appends
+    //  a message to the battle log on screen.
+    // ============================================================
+
+    function log(message) {
+      const battleLog = document.getElementById("battle-log");
+      const entry = document.createElement("div");
+      entry.textContent = message;
+      battleLog.appendChild(entry);
+      battleLog.scrollTop = battleLog.scrollHeight;
+    }
+
+    // ============================================================
+    //  FUNCTION 1: getStatus(fighter)
+    //
+    //  Concept: String concatenation
+    //  Return a string like: "Aria: 100/100 HP"
+    //
+    //  Trap: What happens when you concatenate "100" + "/" + 100?
+    //  It looks fine! But is health actually a number?
+    //
+    //  Try: typeof fighter.health
+    // ============================================================
+
+    function getStatus(fighter) {
+      // TODO: Return a string like "Name: health/maxHealth HP"
+      // Example: "Aria: 100/100 HP"
+    }
+
+    // ============================================================
+    //  FUNCTION 2: isAlive(fighter)
+    //
+    //  Concept: Truthiness and boolean comparison
+    //  Return true if the fighter is alive, false otherwise.
+    //
+    //  Trap: hero.alive is "true" (a string!).
+    //    "true" === true   → false!
+    //    "true" == true    → also false!
+    //    if ("true")       → truthy! (any non-empty string is)
+    //
+    //  Try: What about the string "false"? Is it truthy or falsy?
+    // ============================================================
+
+    function isAlive(fighter) {
+      // TODO: Check if fighter.alive is true
+      // Be careful — is fighter.alive actually a boolean?
+    }
+
+    // ============================================================
+    //  FUNCTION 3: calculateDamage(attacker, defender)
+    //
+    //  Concept: Arithmetic coercion with - vs +
+    //  Return attacker.attack - defender.defense (minimum 1).
+    //
+    //  Trap: "15" - 8 = 7 (works! JS coerces to number for -)
+    //        "15" + 8 = "158" (concatenation! + prefers strings)
+    //
+    //  This is THE big JS gotcha. The - operator always does math,
+    //  but + does concatenation if either side is a string.
+    // ============================================================
+
+    function calculateDamage(attacker, defender) {
+      // TODO: Return attack minus defense (minimum 1 damage)
+      // Try: What does "15" - "3" give you? What about "15" + "3"?
+    }
+
+    // ============================================================
+    //  FUNCTION 4: heal(fighter, amount)
+    //
+    //  Concept: The classic + concatenation trap
+    //  Add amount to fighter.health. Don't exceed maxHealth.
+    //
+    //  Trap: If health is "100" and amount is 20:
+    //    "100" + 20 = "10020"  (not 120!)
+    //
+    //  Fix: Use Number() to convert first.
+    //    Number("100") + 20 = 120
+    // ============================================================
+
+    function heal(fighter, amount) {
+      // TODO: Add amount to fighter.health
+      // Don't let health exceed maxHealth
+      // Watch out for string concatenation!
+    }
+
+    // ============================================================
+    //  FUNCTION 5: applyPoison(fighter)
+    //
+    //  Concept: Falsy values
+    //  If fighter is NOT poisoned, poison them (set poisoned = true).
+    //  If they ARE poisoned, deal 5 damage.
+    //
+    //  Trap: hero.poisoned is 0. Zero is falsy!
+    //    if (0)     → false (doesn't run)
+    //    if (false) → false (doesn't run)
+    //    But 0 !== false... they just both are falsy.
+    //
+    //  Falsy values in JS: 0, "", null, undefined, false, NaN
+    //  EVERYTHING else is truthy (including "0" and "false"!)
+    // ============================================================
+
+    function applyPoison(fighter) {
+      // TODO: If fighter is not poisoned, set poisoned to true and log it
+      //       If fighter IS poisoned, deal 5 damage and log it
+      // Think: What values are falsy in JavaScript?
+    }
+
+    // ============================================================
+    //  FUNCTION 6: compareStats(fighter1, fighter2)
+    //
+    //  Concept: Loose (==) vs strict (===) equality
+    //  Compare the levels of two fighters. Log whether they match.
+    //
+    //  Trap: hero.level is 1 (number), enemy.level is "1" (string)
+    //    "1" == 1   → true  (loose: converts types first)
+    //    "1" === 1  → false (strict: different types = not equal)
+    //
+    //  Rule of thumb: Always use === unless you have a reason not to.
+    // ============================================================
+
+    function compareStats(fighter1, fighter2) {
+      // TODO: Compare fighter1.level and fighter2.level
+      // Log the result of both == and === comparisons
+      // Also try comparing their health values!
+    }
+
+    // ============================================================
+    //  FUNCTION 7: levelUp(fighter)
+    //
+    //  Concept: Type accumulation over repeated operations
+    //  Increase level by 1 and boost attack by 3.
+    //
+    //  Trap: If level is "1" (string):
+    //    "1" + 1 = "11" (string!)
+    //    "11" + 1 = "111" (it gets worse every time!)
+    //
+    //  Fix: Convert BEFORE doing math.
+    //    Number("1") + 1 = 2
+    // ============================================================
+
+    function levelUp(fighter) {
+      // TODO: Increase level by 1, increase attack by 3
+      // Make sure you're doing actual math, not concatenation!
+      // Log the results
+    }
+
+    // ============================================================
+    //  FUNCTION 8: attack(attacker, defender)
+    //
+    //  Concept: Combining earlier functions + crit chance
+    //  Use calculateDamage to get base damage.
+    //  Check for critical hit: Math.random() < critChance → 2x damage.
+    //  Subtract damage from defender's health.
+    //  Check if defender is still alive.
+    //
+    //  Trap: Math.random() < "0.2" actually works (coercion),
+    //        but it's fragile and unclear. Convert explicitly.
+    //
+    //  NOTE: This function uses calculateDamage() and isAlive(),
+    //  so implement those first!
+    // ============================================================
+
+    function attack(attacker, defender) {
+      // TODO: Calculate damage, check for crit, apply to defender
+      // Log what happened
+      // Return the damage dealt
+    }
+
+    // ============================================================
+    //  FUNCTION 9: battleRound(hero, enemy)
+    //
+    //  Concept: String comparison vs number comparison
+    //  The faster fighter attacks first. Compare speeds.
+    //  Both fighters attack (if still alive after the first hit).
+    //
+    //  Trap: "12" > 8 → true (coerces to number, works!)
+    //        "12" > "8" → FALSE! String comparison: "1" < "8"
+    //        Strings compare character by character (like alphabetical)
+    //
+    //  This is subtle because "12" > 8 works fine, but if BOTH
+    //  speeds were strings, it would break.
+    // ============================================================
+
+    function battleRound(hero, enemy) {
+      // TODO: Compare speeds to see who attacks first
+      // Both fighters attack (if alive)
+      // Log the round results
+    }
+
+    // ============================================================
+    //  FUNCTION 10: runBattle(hero, enemy)
+    //
+    //  Concept: Integration — putting it all together
+    //  Loop calling battleRound until one fighter is defeated.
+    //  Log the winner at the end.
+    //
+    //  By now all your type bugs should be fixed!
+    //  (If not, this is where they'll all show up at once.)
+    // ============================================================
+
+    function runBattle(hero, enemy) {
+      // TODO: Loop battleRound until someone is defeated
+      // Log the winner
+      // Keep a round counter so it doesn't loop forever (max 20 rounds)
+    }
+
+    // ============================================================
+    //  TEST HELPER — Runs each function and logs results
+    // ============================================================
+
+    function testFunctions() {
+      const battleLog = document.getElementById("battle-log");
+      battleLog.innerHTML = "";
+
+      log("=== TESTING FUNCTIONS ===");
+      log("");
+
+      // Test getStatus
+      log("--- getStatus ---");
+      const status = getStatus(hero);
+      log("getStatus(hero): " + status);
+      log("typeof result: " + typeof status);
+      log("");
+
+      // Test isAlive
+      log("--- isAlive ---");
+      log("isAlive(hero): " + isAlive(hero));
+      log("isAlive(enemy): " + isAlive(enemy));
+      log("hero.alive value: " + hero.alive + " (type: " + typeof hero.alive + ")");
+      log("enemy.alive value: " + enemy.alive + " (type: " + typeof enemy.alive + ")");
+      log("");
+
+      // Test calculateDamage
+      log("--- calculateDamage ---");
+      log("hero attacks enemy: " + calculateDamage(hero, enemy));
+      log("enemy attacks hero: " + calculateDamage(enemy, hero));
+      log("");
+
+      // Test heal
+      log("--- heal ---");
+      const origHealth = hero.health;
+      heal(hero, 20);
+      log("hero.health after heal(hero, 20): " + hero.health + " (type: " + typeof hero.health + ")");
+      hero.health = origHealth; // reset
+      log("");
+
+      // Test applyPoison
+      log("--- applyPoison ---");
+      log("hero.poisoned before: " + hero.poisoned + " (type: " + typeof hero.poisoned + ")");
+      const origPoisoned = hero.poisoned;
+      applyPoison(hero);
+      log("hero.poisoned after: " + hero.poisoned + " (type: " + typeof hero.poisoned + ")");
+      hero.poisoned = origPoisoned; // reset
+      log("");
+
+      // Test compareStats
+      log("--- compareStats ---");
+      compareStats(hero, enemy);
+      log("");
+
+      // Test levelUp
+      log("--- levelUp ---");
+      const origLevel = hero.level;
+      const origAttack = hero.attack;
+      levelUp(hero);
+      log("hero.level after levelUp: " + hero.level + " (type: " + typeof hero.level + ")");
+      log("hero.attack after levelUp: " + hero.attack + " (type: " + typeof hero.attack + ")");
+      hero.level = origLevel; // reset
+      hero.attack = origAttack; // reset
+      log("");
+
+      log("=== TESTING COMPLETE ===");
+    }
+
+    // ============================================================
+    //  STARTUP — Console output for initial exploration
+    // ============================================================
+
+    console.log("=== INSPECT YOUR FIGHTERS ===");
+    console.log("Hero:", hero);
+    console.log("Enemy:", enemy);
+    console.log("");
+    console.log("=== TYPEOF EACH PROPERTY ===");
+    console.log("hero.health:", typeof hero.health);       // "string" 😱
+    console.log("enemy.health:", typeof enemy.health);     // "number"
+    console.log("hero.alive:", typeof hero.alive);         // "string" 😱
+    console.log("enemy.alive:", typeof enemy.alive);       // "boolean"
+    console.log("hero.attack:", typeof hero.attack);       // "string"
+    console.log("enemy.attack:", typeof enemy.attack);     // "number"
+    console.log("hero.level:", typeof hero.level);         // "number"
+    console.log("enemy.level:", typeof enemy.level);       // "string"
+    console.log("hero.poisoned:", typeof hero.poisoned);   // "number"
+    console.log("enemy.poisoned:", typeof enemy.poisoned); // "boolean"
+    console.log("");
+    console.log("=== WHAT HAPPENS WHEN WE DO MATH? ===");
+    console.log('"100" + 20 =', "100" + 20);              // "10020"
+    console.log('"100" - 20 =', "100" - 20);              // 80
+    console.log('"15" + 8 =', "15" + 8);                  // "158"
+    console.log('"15" - 8 =', "15" - 8);                  // 7
+    console.log("");
+    console.log("=== EQUALITY WEIRDNESS ===");
+    console.log('"true" === true:', "true" === true);      // false
+    console.log('"true" == true:', "true" == true);        // false
+    console.log('"1" == 1:', "1" == 1);                    // true
+    console.log('"1" === 1:', "1" === 1);                  // false
+    console.log("");
+    console.log("=== STRING COMPARISON GOTCHA ===");
+    console.log('"12" > 8:', "12" > 8);                    // true (coerced)
+    console.log('"12" > "8":', "12" > "8");                // false! (string comparison)
+    console.log("");
+    console.log("Open the file in your editor and start implementing the functions!");
+  </script>
+</body>
+</html>
