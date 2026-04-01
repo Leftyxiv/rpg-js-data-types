@@ -161,7 +161,7 @@
 
   <div class="controls">
     <button onclick="testFunctions()">Test Functions</button>
-    <button id="battle-btn" onclick="runBattle(hero, enemy)">Run Battle</button>
+    <button id="battle-btn" onclick="runBattle(hero, enemy)" disabled>Run Battle</button>
   </div>
 
   <div id="battle-log"></div>
@@ -174,30 +174,27 @@
 
     const hero = {
       name: "Aria",
-      health: 100,       // string! should be number
+      health: "100",       // string! should be number
       maxHealth: 100,       // number (correct)
-      attack: 15,         // string!
+      attack: "15",         // string!
       defense: 8,           // number (correct)
-      speed: 12,          // string!
-      alive: true,        // string! should be boolean
+      speed: "12",          // string!
+      alive: "true",        // string! should be boolean
       level: 1,             // number (correct)
-      poisoned: false,          // falsy number — is this false?
-      mana: 50,           // string!
-      critChance: 0.2,     // string!
+      poisoned: 0,          // falsy number — is this false?
+      mana: "50",           // string!
+      critChance: "0.2"     // string!
     };
-
-    // hero.name
-    // hero['name']
 
     const enemy = {
       name: "Shadow Rat",
       health: 60,           // number (correct — contrast with hero)
-      maxHealth: 60,      // string! (opposite of hero)
+      maxHealth: "60",      // string! (opposite of hero)
       attack: 10,           // number
-      defense: 3,         // string!
+      defense: "3",         // string!
       speed: 8,             // number
       alive: true,          // boolean (correct — contrast)
-      level: 1,           // string!
+      level: "1",           // string!
       poisoned: false,      // boolean (correct)
       mana: 20,             // number
       critChance: 0.1       // number (correct)
@@ -231,7 +228,7 @@
     function getStatus(fighter) {
       // TODO: Return a string like "Name: health/maxHealth HP"
       // Example: "Aria: 100/100 HP"
-      return `${fighter.name} ${fighter.health}/${fighter.maxHealth} HP`
+      return `${fighter.name}: ${fighter.health}/${fighter.maxHealth}`
     }
 
     // ============================================================
@@ -251,7 +248,8 @@
     function isAlive(fighter) {
       // TODO: Check if fighter.alive is true
       // Be careful — is fighter.alive actually a boolean?
-      return Boolean(fighter.alive) === true
+      log(typeof fighter.alive)
+      return Boolean(fighter.isAlive) == true 
     }
 
     // ============================================================
@@ -270,12 +268,7 @@
     function calculateDamage(attacker, defender) {
       // TODO: Return attack minus defense (minimum 1 damage)
       // Try: What does "15" - "3" give you? What about "15" + "3"?
-      // store the danage in a bariable
-      const damage = Number(attacker.attack) - Number(defender.defense)
-      // return minimum 1 damage
-      return Math.max(damage, 1)
-      // if damage > 1 return damasge otherwiser return 1
-      // Math.max(damage, 1)
+      return attacker.attack - defender.defense < 1 ? 1 : attacker.attack - defender.defense
     }
 
     // ============================================================
@@ -295,12 +288,7 @@
       // TODO: Add amount to fighter.health
       // Don't let health exceed maxHealth
       // Watch out for string concatenation!
-      // assign = value -> old health + heal amount
-      if (fighter.health + amount > fighter.maxHealth) {
-        fighter.health = fighter.maxHealth
-      } else {
-        fighter.health += Number(amount)
-      }
+      return Number(fighter.health) + Number(amount) > Number(fighter.health) ? Number(fighter.maxHealth) : Number(figter.health) + Number(amount)
     }
 
     // ============================================================
@@ -323,18 +311,6 @@
       // TODO: If fighter is not poisoned, set poisoned to true and log it
       //       If fighter IS poisoned, deal 5 damage and log it
       // Think: What values are falsy in JavaScript?
-      // figure out if weer poisoned
-      // if we are not -> set to true
-      // if we are -> deal 5 damage
-      if (!fighter.poisoned) {
-        // set poisone to true
-        fighter.poisoned = true
-        console.log(`${fighter.name} has been poisoned! oh noes`)
-      } else {
-        // deal 5 damage
-        fighter -= 5
-        console(`${fighter.name} has taken 5 damage! they have ${fighter.health} remaining!`);
-      }
     }
 
     // ============================================================
@@ -354,15 +330,6 @@
       // TODO: Compare fighter1.level and fighter2.level
       // Log the result of both == and === comparisons
       // Also try comparing their health values!
-
-      // log who were comparing
-      console.log(`Comparing ${fighter1.name} vs ${fighter2.name}`)
-
-      //log levels
-      console.log(`levels equal? ${fighter1.level == fighter2.level}`);
-      // name level
-      console.log(fighter1.name + " level: " + fighter1.level + " (type: " + typeof fighter1.level + ")");
-      console.log(fighter2.name + " level: " + fighter2.level + " (type: " + typeof fighter2.level + ")");
     }
 
     // ============================================================
@@ -374,8 +341,8 @@
     //  Trap: If level is "1" (string):
     //    "1" + 1 = "11" (string!)
     //    "11" + 1 = "111" (it gets worse every time!)
-    //     "1111" + 1 = 11111
-     //  Fix: Convert BEFORE doing math.
+    //
+    //  Fix: Convert BEFORE doing math.
     //    Number("1") + 1 = 2
     // ============================================================
 
@@ -383,11 +350,6 @@
       // TODO: Increase level by 1, increase attack by 3
       // Make sure you're doing actual math, not concatenation!
       // Log the results
-      // increase fighter level by 1
-      fighter.level += 1
-      //increase attack by 3
-      fighter.attack += 3
-      console.log(`${fighter.name} has increased to level ${fighter.level}, and now has ${fighter.attack} attack power.`)
     }
 
     // ============================================================
@@ -410,35 +372,6 @@
       // TODO: Calculate damage, check for crit, apply to defender
       // Log what happened
       // Return the damage dealt
-      // calculate the damage
-      let damage = calculateDamage(attacker, defender)
-      // rng roll to find out if our attack is a crit
-      const critRoll = Math.random()
-      const critChance = attacker.critChance;
-      
-      let isCrit = false;
-      if (critRoll < critChance) {
-        // if it is a crit we want to calculatge damage
-        damage *= 2
-        isCrit = true;
-      }
-
-      // we subtract damage frpm health
-      defender.health -= damage
-      if (isCrit) {
-        console.log(`💥 CRITICAL STIKE ${attacker.name} deals ${damage} damage points to ${defender.name}`)
-      }
-      // log to the console the resultr of this attack
-
-      // survival check -> want to ssee if our valiant combatant has any
-      if (defender.health <= 0) {
-        defender.alive = false // :(
-        console.log(`${defender.name} has been defeated!!!`)
-      }
-      // health remaining
-      console.log(`${defender.name} has ${defender.health} remaining!`)
-      // return damage
-      return damage
     }
 
     // ============================================================
@@ -459,23 +392,7 @@
     function battleRound(hero, enemy) {
       // TODO: Compare speeds to see who attacks first
       // Both fighters attack (if alive)
-      const heroSpeed = hero.speed;
-      const enemySpeed = enemy.speed;
       // Log the round results
-
-      console.log('------ NEW ROUND -------')
-      // hero speed
-      if (heroSpeed > enemySpeed) {
-        attack(hero, enemy);
-        if (isAlive(enemy)) {
-          attack(enemy, hero)
-        }
-      } else {
-        attack(enemy, hero)
-        if (isAlive(hero)) {
-          attack(hero, enemy)
-        }
-      }
     }
 
     // ============================================================
@@ -493,24 +410,8 @@
       // TODO: Loop battleRound until someone is defeated
       // Log the winner
       // Keep a round counter so it doesn't loop forever (max 20 rounds)
-      console.log(`⚔️ BATTLE START: ${hero.name} + ${enemy.name} go now!`)
-
-      let round = 0;
-      while (isAlive(hero) && isAlive(enemy) && round < 20) {
-        ++round;
-        battleRound(hero, enemy)
-      }
-
-      if (!isAlive(hero)) {
-        log("💀 " + hero.name + " has fallen. " + enemy.name + " wins!");
-      } else if (!isAlive(enemy)) {
-        log("🏆 " + enemy.name + " has fallen. " + hero.name + " wins!");
-      } else {
-        log("⏰ Battle timed out after 20 rounds!");
-      }
-
     }
-    
+
     // ============================================================
     //  TEST HELPER — Runs each function and logs results
     // ============================================================

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spell Crafter — JS Functions</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: "Courier New", Courier, monospace;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #a855f7;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+    }
+
+    .workshop {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .panel {
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      padding: 16px 24px;
+      min-width: 260px;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .panel h2 {
+      color: #a855f7;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+    }
+
+    .panel.targets h2 {
+      color: #e94560;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #0f3460;
+    }
+
+    .stat-label {
+      color: #888;
+    }
+
+    .stat-value {
+      color: #4ade80;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #a855f7;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-family: inherit;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 6px;
+    }
+
+    button:hover {
+      background: #9333ea;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #spell-log {
+      background: #0f0f23;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      padding: 16px;
+      max-height: 500px;
+      overflow-y: auto;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    #spell-log div {
+      padding: 2px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    #spell-log div:last-child {
+      border-bottom: none;
+    }
+
+    .log-spell { color: #a855f7; }
+    .log-damage { color: #e94560; }
+    .log-info { color: #60a5fa; }
+    .log-mana { color: #4ade80; }
+    .log-recursive { color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+  <h1>Spell Crafter — JS Functions</h1>
+
+  <div class="workshop">
+    <div class="panel">
+      <h2 id="caster-name">Wizard Elara</h2>
+      <div class="stat"><span class="stat-label">Mana</span><span class="stat-value" id="caster-mana">100</span></div>
+      <div class="stat"><span class="stat-label">Level</span><span class="stat-value" id="caster-level">5</span></div>
+      <div class="stat"><span class="stat-label">Spells Cast</span><span class="stat-value" id="caster-casts">0</span></div>
+    </div>
+
+    <div class="panel targets">
+      <h2>Training Dummies</h2>
+      <div class="stat"><span class="stat-label">Dummy A</span><span class="stat-value" id="dummy-a-hp">50 HP</span></div>
+      <div class="stat"><span class="stat-label">Dummy B</span><span class="stat-value" id="dummy-b-hp">50 HP</span></div>
+      <div class="stat"><span class="stat-label">Dummy C</span><span class="stat-value" id="dummy-c-hp">50 HP</span></div>
+      <div class="stat"><span class="stat-label">Dummy D</span><span class="stat-value" id="dummy-d-hp">50 HP</span></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="testFunctions()">Test Functions</button>
+    <button onclick="runDemo()" id="demo-btn">Run Full Demo</button>
+  </div>
+
+  <div id="spell-log"></div>
+
+  <script>
+    // ============================================================
+    //  SPELL CRAFTER — Learning JavaScript Functions
+    //
+    //  In this exercise you'll build a spell system where
+    //  functions call other functions, compose together,
+    //  and even call themselves (recursion!).
+    //
+    //  Work through the functions in order — later ones
+    //  depend on earlier ones.
+    // ============================================================
+
+    // --- DATA ---------------------------------------------------
+
+    const caster = {
+      name: "Wizard Elara",
+      mana: 100,
+      level: 5,
+      spellsCast: 0
+    };
+
+    const dummies = [
+      { name: "Dummy A", health: 50, maxHealth: 50, element: "fire" },
+      { name: "Dummy B", health: 50, maxHealth: 50, element: "ice" },
+      { name: "Dummy C", health: 50, maxHealth: 50, element: "fire" },
+      { name: "Dummy D", health: 50, maxHealth: 50, element: "lightning" }
+    ];
+
+    // Element weakness chart: key is weak TO the value
+    const weaknesses = {
+      fire: "ice",
+      ice: "lightning",
+      lightning: "fire"
+    };
+
+    // --- LOG HELPER (provided) ----------------------------------
+
+    function log(message, type) {
+      const spellLog = document.getElementById("spell-log");
+      const entry = document.createElement("div");
+      entry.textContent = message;
+      if (type) entry.classList.add("log-" + type);
+      spellLog.appendChild(entry);
+      spellLog.scrollTop = spellLog.scrollHeight;
+    }
+
+    // ============================================================
+    //  FUNCTION 1: createSpell(name, element, power)
+    //
+    //  Concept: Functions that RETURN values
+    //
+    //  Create and return a spell object with these properties:
+    //    { name, element, power, baseCost: power * 2 }
+    //
+    //  This is the foundation — almost every other function will
+    //  use spells created by this one.
+    //
+    //  Key idea: A function can build something and hand it back
+    //  to whoever called it using `return`.
+    // ============================================================
+
+    function createSpell(name, element, power) {
+      return {
+        name: name,
+        element: element,
+        power: power,
+        baseCost: power * 2
+      };
+    }
+
+    // ============================================================
+    //  FUNCTION 2: describeSpell(spell)
+    //
+    //  Concept: Functions that take objects as parameters
+    //
+    //  Return a string like: "[Fire] Fireball (Power: 15, Cost: 30)"
+    //  Use the spell object returned by createSpell.
+    //
+    //  Key idea: Functions can accept any type as a parameter —
+    //  including objects that other functions created.
+    // ============================================================
+
+    function describeSpell(spell) {
+      const elementCapitalized = spell.element[0].toUpperCase() + spell.element.slice(1);
+      return `[${elementCapitalized}] ${spell.name} (Power: ${spell.power}, Cost: ${spell.baseCost})`;
+    }
+
+    // ============================================================
+    //  FUNCTION 3: calculateManaCost(spell, casterLevel)
+    //
+    //  Concept: Functions with multiple parameters + math
+    //
+    //  Higher-level casters are more efficient.
+    //  Formula: spell.baseCost - casterLevel  (minimum cost of 1)
+    //
+    //  Key idea: Functions take inputs, do work, return output.
+    //  The caller doesn't need to know HOW the cost is calculated,
+    //  just that it gets the answer back.
+    // ============================================================
+
+    function calculateManaCost(spell, casterLevel) {
+      const cost = spell.baseCost - casterLevel;
+      return Math.max(cost, 1);
+    }
+
+    // ============================================================
+    //  FUNCTION 4: canAffordSpell(caster, spell)
+    //
+    //  Concept: Functions calling OTHER functions
+    //
+    //  Return true if the caster has enough mana.
+    //  USE calculateManaCost() to get the cost — don't recalculate
+    //  it yourself!
+    //
+    //  Key idea: Functions should call other functions instead of
+    //  duplicating logic. If the cost formula changes, you only
+    //  fix it in ONE place.
+    //
+    //  USES: calculateManaCost()
+    // ============================================================
+
+    function canAffordSpell(caster, spell) {
+      const cost = calculateManaCost(spell, caster.level);
+      return caster.mana >= cost;
+    }
+
+    // ============================================================
+    //  FUNCTION 5: applyDamage(target, amount)
+    //
+    //  Concept: Functions that modify objects (side effects)
+    //
+    //  Subtract amount from target.health (minimum 0).
+    //  Return an object: { target: target.name, damage: amount,
+    //                       remainingHealth: target.health,
+    //                       defeated: target.health <= 0 }
+    //
+    //  Key idea: Some functions DO something (side effect: changing
+    //  the target's health) AND return info about what happened.
+    // ============================================================
+
+    function applyDamage(target, amount) {
+      target.health = Math.max(target.health - amount, 0);
+      return {
+        target: target.name,
+        damage: amount,
+        remainingHealth: target.health,
+        defeated: target.health <= 0
+      };
+    }
+
+    // ============================================================
+    //  FUNCTION 6: castSpell(caster, spell, target)
+    //
+    //  Concept: Orchestrator — a function that ties it all together
+    //
+    //  This is where everything connects:
+    //  1. Check if caster can afford the spell (canAffordSpell)
+    //  2. If not, log "Not enough mana!" and return false
+    //  3. Calculate the actual mana cost (calculateManaCost)
+    //  4. Subtract mana from caster
+    //  5. Apply damage to target (applyDamage)
+    //  6. Increment caster.spellsCast
+    //  7. Log what happened using describeSpell
+    //  8. Return the result from applyDamage
+    //
+    //  USES: canAffordSpell(), calculateManaCost(),
+    //        applyDamage(), describeSpell()
+    // ============================================================
+
+    function castSpell(caster, spell, target) {
+      if (!canAffordSpell(caster, spell)) {
+        log(caster.name + " tries to cast " + spell.name + " but doesn't have enough mana!", "mana");
+        return false;
+      }
+
+      const cost = calculateManaCost(spell, caster.level);
+      caster.mana -= cost;
+
+      const result = applyDamage(target, spell.power);
+      caster.spellsCast++;
+
+      log(caster.name + " casts " + describeSpell(spell) + " on " + target.name + "!", "spell");
+      log("  Dealt " + result.damage + " damage! " + target.name + ": " + result.remainingHealth + " HP remaining", "damage");
+      if (result.defeated) {
+        log("  " + target.name + " has been defeated!", "damage");
+      }
+      log("  Mana spent: " + cost + " | Remaining: " + caster.mana, "mana");
+
+      return result;
+    }
+
+    // ============================================================
+    //  FUNCTION 7: getElementalMultiplier(spellElement, targetElement)
+    //
+    //  Concept: Functions with conditional logic + lookup
+    //
+    //  Use the weaknesses chart:
+    //  - If the target is WEAK to the spell's element → return 2
+    //  - If the spell hits its OWN weakness → return 0.5
+    //  - Otherwise → return 1
+    //
+    //  Example: fire spell vs ice target → ice is weak to fire?
+    //  No! Check: weaknesses["ice"] === "lightning", not "fire"
+    //  Actually: weaknesses["fire"] === "ice", so fire is weak
+    //  to ice. If the TARGET is ice element and SPELL is fire...
+    //  we check: is the target's element weak to the spell element?
+    //  weaknesses[targetElement] === spellElement → double damage!
+    //
+    //  Key idea: Functions encapsulate decisions. The caller just
+    //  asks "what's the multiplier?" without worrying about how
+    //  the element system works.
+    // ============================================================
+
+    function getElementalMultiplier(spellElement, targetElement) {
+      if (weaknesses[targetElement] === spellElement) {
+        return 2;
+      }
+      if (weaknesses[spellElement] === targetElement) {
+        return 0.5;
+      }
+      return 1;
+    }
+
+    // ============================================================
+    //  FUNCTION 8: castElementalSpell(caster, spell, target)
+    //
+    //  Concept: Wrapping/enhancing another function
+    //
+    //  Like castSpell, but applies elemental bonuses:
+    //  1. Get the multiplier (getElementalMultiplier)
+    //  2. Create a MODIFIED spell with adjusted power:
+    //     Use createSpell to make a new spell with:
+    //     - same name (+ " (Enhanced!)" if multiplier > 1,
+    //       or " (Resisted)" if multiplier < 1)
+    //     - same element
+    //     - power = spell.power * multiplier
+    //  3. Cast the modified spell using castSpell
+    //
+    //  Key idea: Instead of rewriting castSpell, we BUILD ON IT.
+    //  This is composition — small functions combining into
+    //  bigger behavior.
+    //
+    //  USES: getElementalMultiplier(), createSpell(), castSpell()
+    // ============================================================
+
+    function castElementalSpell(caster, spell, target) {
+      const multiplier = getElementalMultiplier(spell.element, target.element);
+
+      let modifiedName = spell.name;
+      if (multiplier > 1) {
+        modifiedName += " (Enhanced!)";
+        log("Super effective! " + spell.element + " vs " + target.element, "recursive");
+      } else if (multiplier < 1) {
+        modifiedName += " (Resisted)";
+        log("Resisted! " + spell.element + " vs " + target.element, "info");
+      }
+
+      const modifiedSpell = createSpell(modifiedName, spell.element, Math.floor(spell.power * multiplier));
+      return castSpell(caster, modifiedSpell, target);
+    }
+
+    // ============================================================
+    //  FUNCTION 9: factorial(n)
+    //
+    //  Concept: RECURSION — a function that calls itself
+    //
+    //  The classic example:
+    //    factorial(5) = 5 * 4 * 3 * 2 * 1 = 120
+    //
+    //  How recursion works:
+    //    factorial(5) = 5 * factorial(4)
+    //    factorial(4) = 4 * factorial(3)
+    //    factorial(3) = 3 * factorial(2)
+    //    factorial(2) = 2 * factorial(1)
+    //    factorial(1) = 1                    ← BASE CASE (stop!)
+    //
+    //  Every recursive function needs:
+    //  1. A BASE CASE — when to stop (n <= 1 → return 1)
+    //  2. A RECURSIVE STEP — call yourself with a smaller problem
+    //
+    //  WITHOUT a base case, you get infinite recursion → crash!
+    //
+    //  We'll use this to calculate spell combo damage multipliers.
+    // ============================================================
+
+    function factorial(n) {
+      if (n <= 1) {
+        return 1;
+      }
+      return n * factorial(n - 1);
+    }
+
+    // ============================================================
+    //  FUNCTION 10: chainLightning(targets, power, bounceIndex)
+    //
+    //  Concept: RECURSION with a practical use case
+    //
+    //  Chain lightning hits the first target, then BOUNCES to the
+    //  next with half power. It keeps going until it runs out of
+    //  targets or the power drops below 1.
+    //
+    //  chainLightning([A, B, C, D], 20, 0)
+    //    → Hit A for 20, then chainLightning([A, B, C, D], 10, 1)
+    //    → Hit B for 10, then chainLightning([A, B, C, D], 5, 2)
+    //    → Hit C for 5,  then chainLightning([A, B, C, D], 2, 3)
+    //    → Hit D for 2,  then chainLightning([A, B, C, D], 1, 4)
+    //    → bounceIndex 4 >= targets.length 4 → STOP (base case)
+    //
+    //  BASE CASES (two of them!):
+    //  1. bounceIndex >= targets.length (no more targets)
+    //  2. power < 1 (too weak to bounce)
+    //
+    //  RECURSIVE STEP:
+    //  - Apply damage to targets[bounceIndex]
+    //  - Call chainLightning with power/2 and bounceIndex+1
+    //  - Return total damage dealt (this hit + all future bounces)
+    //
+    //  USES: applyDamage()
+    // ============================================================
+
+    function chainLightning(targets, power, bounceIndex) {
+      // Base cases
+      if (bounceIndex >= targets.length) {
+        log("  Lightning fizzles out — no more targets!", "info");
+        return 0;
+      }
+      if (power < 1) {
+        log("  Lightning fizzles out — too weak to bounce!", "info");
+        return 0;
+      }
+
+      // Hit the current target
+      const currentDamage = Math.floor(power);
+      const result = applyDamage(targets[bounceIndex], currentDamage);
+      log("  Zap! " + targets[bounceIndex].name + " takes " + currentDamage + " lightning damage! (" + result.remainingHealth + " HP left)", "recursive");
+
+      // Recurse to the next target with half power
+      const bounceDamage = chainLightning(targets, power / 2, bounceIndex + 1);
+
+      return currentDamage + bounceDamage;
+    }
+
+    // ============================================================
+    //  FUNCTION 11: buildSpellCombo(caster, spellNames)
+    //
+    //  Concept: Putting it ALL together — loops + function calls
+    //
+    //  Given an array of spell names, create and cast them all
+    //  in sequence against random dummies.
+    //
+    //  For each spell name:
+    //  1. Create the spell using createSpell (use "fire" as element
+    //     and the spell's index+1 * 5 as power)
+    //  2. Pick a random living dummy as target
+    //  3. Cast it using castElementalSpell
+    //  4. Log the result
+    //
+    //  At the end, use factorial to calculate a combo bonus:
+    //    comboBonus = factorial(spellNames.length)
+    //    Log: "X-spell combo! Bonus multiplier: Y"
+    //
+    //  USES: createSpell(), castElementalSpell(), factorial()
+    // ============================================================
+
+    function buildSpellCombo(caster, spellNames) {
+      log(caster.name + " begins a " + spellNames.length + "-spell combo!", "spell");
+
+      for (let i = 0; i < spellNames.length; i++) {
+        const power = (i + 1) * 5;
+        const spell = createSpell(spellNames[i], "fire", power);
+
+        // Pick a random living dummy
+        const livingDummies = dummies.filter(d => d.health > 0);
+        if (livingDummies.length === 0) {
+          log("No targets remaining!", "info");
+          break;
+        }
+        const target = livingDummies[Math.floor(Math.random() * livingDummies.length)];
+
+        castElementalSpell(caster, spell, target);
+      }
+
+      const comboBonus = factorial(spellNames.length);
+      log(spellNames.length + "-spell combo! Bonus multiplier: " + comboBonus + "x", "recursive");
+    }
+
+    // ============================================================
+    //  TEST HELPER — Runs each function and logs results
+    // ============================================================
+
+    function testFunctions() {
+      const spellLog = document.getElementById("spell-log");
+      spellLog.innerHTML = "";
+
+      log("=== TESTING FUNCTIONS ===", "info");
+      log("");
+
+      // Test createSpell
+      log("--- createSpell ---", "info");
+      const fireball = createSpell("Fireball", "fire", 15);
+      log("createSpell('Fireball', 'fire', 15): " + JSON.stringify(fireball));
+      log("Expected: { name: 'Fireball', element: 'fire', power: 15, baseCost: 30 }");
+      log("");
+
+      // Test describeSpell
+      log("--- describeSpell ---", "info");
+      if (fireball) {
+        log("describeSpell(fireball): " + describeSpell(fireball));
+        log("Expected: [Fire] Fireball (Power: 15, Cost: 30)");
+      } else {
+        log("Skipped — createSpell not implemented yet");
+      }
+      log("");
+
+      // Test calculateManaCost
+      log("--- calculateManaCost ---", "info");
+      if (fireball) {
+        const cost = calculateManaCost(fireball, 5);
+        log("calculateManaCost(fireball, level 5): " + cost);
+        log("Expected: 25 (baseCost 30 - level 5)");
+        const cheapCost = calculateManaCost(createSpell("Spark", "lightning", 2), 10);
+        log("calculateManaCost(Spark power 2, level 10): " + cheapCost);
+        log("Expected: 1 (minimum cost, since 4 - 10 would be negative)");
+      } else {
+        log("Skipped — createSpell not implemented yet");
+      }
+      log("");
+
+      // Test canAffordSpell
+      log("--- canAffordSpell ---", "info");
+      if (fireball) {
+        log("Caster mana: " + caster.mana);
+        log("canAffordSpell(caster, fireball): " + canAffordSpell(caster, fireball));
+        log("Expected: true (100 mana >= 25 cost)");
+        const megaSpell = createSpell("Meteor", "fire", 200);
+        log("canAffordSpell(caster, Meteor cost 395): " + canAffordSpell(caster, megaSpell));
+        log("Expected: false (100 mana < 395 cost)");
+      } else {
+        log("Skipped — createSpell not implemented yet");
+      }
+      log("");
+
+      // Test applyDamage
+      log("--- applyDamage ---", "info");
+      const testDummy = { name: "Test Dummy", health: 30, maxHealth: 30 };
+      const dmgResult = applyDamage(testDummy, 12);
+      log("applyDamage(30hp dummy, 12): " + JSON.stringify(dmgResult));
+      log("Expected: { target: 'Test Dummy', damage: 12, remainingHealth: 18, defeated: false }");
+      testDummy.health = 30; // reset
+      log("");
+
+      // Test castSpell
+      log("--- castSpell ---", "info");
+      if (fireball) {
+        const origMana = caster.mana;
+        const origCasts = caster.spellsCast;
+        const castTarget = { name: "Cast Dummy", health: 50, maxHealth: 50 };
+        const castResult = castSpell(caster, fireball, castTarget);
+        log("castSpell result: " + JSON.stringify(castResult));
+        log("Caster mana after: " + caster.mana + " (was " + origMana + ")");
+        log("Target health after: " + castTarget.health);
+        caster.mana = origMana; // reset
+        caster.spellsCast = origCasts; // reset
+      } else {
+        log("Skipped — createSpell not implemented yet");
+      }
+      log("");
+
+      // Test getElementalMultiplier
+      log("--- getElementalMultiplier ---", "info");
+      log("fire vs ice target: " + getElementalMultiplier("fire", "ice"));
+      log("Expected: 0.5 (fire is weak to ice → resisted)");
+      log("ice vs fire target: " + getElementalMultiplier("ice", "fire"));
+      log("Expected: 2 (fire is weak to ice → super effective!)");
+      log("lightning vs fire target: " + getElementalMultiplier("lightning", "fire"));
+      log("Expected: 0.5 (lightning is weak to fire → resisted)");
+      log("fire vs lightning target: " + getElementalMultiplier("fire", "lightning"));
+      log("Expected: 1 (no direct interaction)");
+      log("");
+
+      // Test factorial
+      log("--- factorial (RECURSION) ---", "recursive");
+      log("factorial(1): " + factorial(1) + " (expected: 1)");
+      log("factorial(3): " + factorial(3) + " (expected: 6)");
+      log("factorial(5): " + factorial(5) + " (expected: 120)");
+      log("factorial(0): " + factorial(0) + " (expected: 1)");
+      log("");
+
+      // Test chainLightning
+      log("--- chainLightning (RECURSION) ---", "recursive");
+      const testTargets = [
+        { name: "Target 1", health: 50, maxHealth: 50 },
+        { name: "Target 2", health: 50, maxHealth: 50 },
+        { name: "Target 3", health: 50, maxHealth: 50 }
+      ];
+      const totalDmg = chainLightning(testTargets, 20, 0);
+      log("chainLightning([3 targets], power 20, start 0)");
+      log("Total damage: " + totalDmg + " (expected: 20 + 10 + 5 = 35)");
+      log("Target 1 health: " + testTargets[0].health + " (expected: 30)");
+      log("Target 2 health: " + testTargets[1].health + " (expected: 40)");
+      log("Target 3 health: " + testTargets[2].health + " (expected: 45)");
+      log("");
+
+      log("=== TESTING COMPLETE ===", "info");
+    }
+
+    // ============================================================
+    //  FULL DEMO — Run after all functions are implemented
+    // ============================================================
+
+    function runDemo() {
+      const spellLog = document.getElementById("spell-log");
+      spellLog.innerHTML = "";
+
+      // Reset state
+      caster.mana = 100;
+      caster.spellsCast = 0;
+      dummies.forEach(d => d.health = d.maxHealth);
+
+      log("=== SPELL CRAFTER DEMO ===", "info");
+      log("");
+
+      // Create some spells
+      const fireball = createSpell("Fireball", "fire", 15);
+      const iceBlast = createSpell("Ice Blast", "ice", 12);
+      const thunderbolt = createSpell("Thunderbolt", "lightning", 18);
+
+      log("Spells created:", "spell");
+      log("  " + describeSpell(fireball));
+      log("  " + describeSpell(iceBlast));
+      log("  " + describeSpell(thunderbolt));
+      log("");
+
+      // Cast elemental spells against different targets
+      log("--- Elemental Casting ---", "info");
+      castElementalSpell(caster, fireball, dummies[1]);   // fire vs ice
+      castElementalSpell(caster, iceBlast, dummies[0]);    // ice vs fire
+      castElementalSpell(caster, thunderbolt, dummies[3]); // lightning vs lightning
+      log("");
+
+      // Chain lightning!
+      log("--- Chain Lightning! ---", "recursive");
+      dummies.forEach(d => d.health = d.maxHealth); // reset dummies
+      const chainDmg = chainLightning(dummies, 24, 0);
+      log("Total chain damage: " + chainDmg, "damage");
+      log("");
+
+      // Combo!
+      log("--- Spell Combo ---", "info");
+      caster.mana = 100; // refill mana
+      dummies.forEach(d => d.health = d.maxHealth); // reset
+      buildSpellCombo(caster, ["Spark", "Flare", "Blast"]);
+      log("");
+
+      // Status report
+      log("--- Final Status ---", "info");
+      log("Caster: " + caster.name + " | Mana: " + caster.mana + " | Spells Cast: " + caster.spellsCast);
+      dummies.forEach(d => {
+        log("  " + d.name + ": " + d.health + "/" + d.maxHealth + " HP" + (d.health <= 0 ? " [DEFEATED]" : ""));
+      });
+
+      // Update UI
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById("caster-mana").textContent = caster.mana;
+      document.getElementById("caster-casts").textContent = caster.spellsCast;
+      dummies.forEach((d, i) => {
+        const id = ["dummy-a-hp", "dummy-b-hp", "dummy-c-hp", "dummy-d-hp"][i];
+        document.getElementById(id).textContent = d.health + "/" + d.maxHealth + " HP";
+      });
+    }
+
+    // ============================================================
+    //  STARTUP — Console hints
+    // ============================================================
+
+    console.log("=== SPELL CRAFTER — JS FUNCTIONS ===");
+    console.log("");
+    console.log("This exercise teaches:");
+    console.log("  1. Functions that return values");
+    console.log("  2. Functions that take objects as parameters");
+    console.log("  3. Functions calling other functions");
+    console.log("  4. Functions with side effects");
+    console.log("  5. Recursion (functions calling themselves!)");
+    console.log("");
+    console.log("Work through the functions in order.");
+    console.log("Later ones depend on earlier ones!");
+    console.log("");
+    console.log("Tip: Open the file and search for TODO to find your tasks.");
+  </script>
+</body>
+</html>
